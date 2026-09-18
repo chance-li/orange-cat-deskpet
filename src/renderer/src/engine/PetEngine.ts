@@ -79,11 +79,12 @@ export class PetEngine {
     this.hungerBar = root.querySelector('#hunger-bar') as HTMLElement
     this.moodVal = root.querySelector('#mood-val') as HTMLElement
     this.hungerVal = root.querySelector('#hunger-val') as HTMLElement
-    const frame = root.querySelector('#pet-frame') as HTMLImageElement
-    this.animator = new SpriteAnimator(frame)
+    const sprites = root.querySelector('.sprites') as HTMLElement
+    this.animator = new SpriteAnimator(sprites)
   }
 
   async start(): Promise<void> {
+    await this.animator.ready()
     const settings = await window.deskpet.loadSettings()
     this.applySettings(settings)
     const pos = await window.deskpet.getPosition()

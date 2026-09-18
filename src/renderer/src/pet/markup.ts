@@ -35,7 +35,8 @@ export function catMarkup(): string {
         <div class="yarn" aria-hidden="true"></div>
         <div class="ground-shadow" aria-hidden="true"></div>
         <div class="sprites">
-          <img id="pet-frame" class="sprite" src="${DEFAULT_FRAME}" alt="" draggable="false" />
+          <img class="sprite sprite-a is-visible" src="${DEFAULT_FRAME}" alt="" draggable="false" width="168" height="168" />
+          <img class="sprite sprite-b" alt="" draggable="false" width="168" height="168" />
         </div>
       </div>
     </div>

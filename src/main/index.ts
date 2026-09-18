@@ -32,15 +32,24 @@ function stopDragLoop(): void {
   }
 }
 
-function resolveIcon(): NativeImage {
-  const packaged = app.isPackaged
-    ? join(process.resourcesPath, 'icon.png')
-    : join(__dirname, '../../resources/icon.png')
-  const fromFile = nativeImage.createFromPath(packaged)
-  if (!fromFile.isEmpty()) {
-    return fromFile.resize({ width: 32, height: 32 })
-  }
-  return createTrayIcon()
+function resourceFile(name: string): string {
+  return app.isPackaged
+    ? join(process.resourcesPath, name)
+    : join(__dirname, '../../resources', name)
+}
+
+function loadNativePng(name: string, size: number): NativeImage | null {
+  const image = nativeImage.createFromPath(resourceFile(name))
+  if (image.isEmpty()) return null
+  return image.resize({ width: size, height: size })
+}
+
+function resolveTrayIcon(): NativeImage {
+  return loadNativePng('tray.png', 32) ?? loadNativePng('icon.png', 32) ?? createTrayIcon()
+}
+
+function resolveAppIcon(): NativeImage {
+  return loadNativePng('icon.png', 256) ?? loadNativePng('tray.png', 256) ?? createTrayIcon()
 }
 
 function workAreaAt(x: number, y: number) {
@@ -96,6 +105,7 @@ function createWindow(): BrowserWindow {
     fullscreenable: false,
     skipTaskbar: true,
     alwaysOnTop: settings.alwaysOnTop,
+    icon: resolveAppIcon(),
     focusable: true,
     roundedCorners: false,
     autoHideMenuBar: true,
@@ -305,7 +315,7 @@ function refreshTray(): void {
 }
 
 function createTrayIconMenu(): void {
-  const icon = resolveIcon()
+  const icon = resolveTrayIcon()
   tray = new Tray(icon)
   tray.setToolTip('橘猫桌宠')
   refreshTray()

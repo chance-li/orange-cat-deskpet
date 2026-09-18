@@ -33,12 +33,17 @@
     },
     "files": [
       "out/**",
-      "resources/icon.png"
+      "resources/icon.png",
+      "resources/tray.png"
     ],
     "extraResources": [
       {
         "from": "resources/icon.png",
         "to": "icon.png"
+      },
+      {
+        "from": "resources/tray.png",
+        "to": "tray.png"
       }
     ],
     "win": {
