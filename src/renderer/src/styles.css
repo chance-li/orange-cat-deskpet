@@ -196,7 +196,6 @@ body {
   position: absolute;
   inset: 0;
   transform-origin: 50% 100%;
-  animation: bob 2.8s ease-in-out infinite;
 }
 
 .pet.facing-left .sprites {
@@ -210,187 +209,16 @@ body {
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  opacity: 0;
   pointer-events: none;
   -webkit-user-drag: none;
-  transition: opacity 0.12s ease;
-}
-
-.pet.state-idle .sprite-idle,
-.pet.state-sit .sprite-idle,
-.pet.state-walk .sprite-walk,
-.pet.state-sleep .sprite-sleep,
-.pet.state-stretch .sprite-stretch,
-.pet.state-lick .sprite-lick,
-.pet.state-happy .sprite-happy,
-.pet.state-surprised .sprite-surprised,
-.pet.state-eat .sprite-eat {
-  opacity: 1;
-}
-
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-.pet.facing-left.state-idle .sprites,
-.pet.facing-left.state-sit .sprites {
-  animation: bob-left 2.8s ease-in-out infinite;
-}
-
-@keyframes bob-left {
-  0%,
-  100% {
-    transform: scaleX(-1) translateY(0);
-  }
-  50% {
-    transform: scaleX(-1) translateY(-3px);
-  }
-}
-
-.pet.state-walk .sprites {
-  animation: walk-bob 0.34s ease-in-out infinite;
-}
-
-.pet.facing-left.state-walk .sprites {
-  animation: walk-bob-left 0.34s ease-in-out infinite;
-}
-
-@keyframes walk-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-1.4deg);
-  }
-  50% {
-    transform: translateY(-5px) rotate(1.4deg);
-  }
-}
-
-@keyframes walk-bob-left {
-  0%,
-  100% {
-    transform: scaleX(-1) translateY(0) rotate(-1.4deg);
-  }
-  50% {
-    transform: scaleX(-1) translateY(-5px) rotate(1.4deg);
-  }
-}
-
-.pet.state-happy {
-  animation: hop 0.42s ease-in-out infinite;
-}
-
-.pet.state-happy .sprites {
-  animation: none;
-}
-
-.pet.facing-left.state-happy .sprites {
-  animation: none;
-  transform: scaleX(-1);
-}
-
-@keyframes hop {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-.pet.state-sleep .sprites,
-.pet.state-sit .sprites {
-  animation: none;
-}
-
-.pet.facing-left.state-stretch .sprites,
-.pet.facing-left.state-lick .sprites {
-  animation: bob-left 2.8s ease-in-out infinite;
-}
-
-.pet.facing-left.state-sleep .sprites,
-.pet.facing-left.state-sit .sprites {
-  animation: none;
-  transform: scaleX(-1);
-}
-
-.pet.state-surprised .sprites {
-  animation: surprise-pop 0.45s ease-out;
-}
-
-.pet.facing-left.state-surprised .sprites {
-  animation: surprise-pop-left 0.45s ease-out;
-}
-
-@keyframes surprise-pop {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.08, 0.94);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes surprise-pop-left {
-  0% {
-    transform: scaleX(-1) scale(1);
-  }
-  40% {
-    transform: scaleX(-1) scale(1.08, 0.94);
-  }
-  100% {
-    transform: scaleX(-1);
-  }
-}
-
-.pet.state-eat .sprites {
-  animation: eat-nibble 0.4s ease-in-out infinite;
-}
-
-.pet.facing-left.state-eat .sprites {
-  animation: eat-nibble-left 0.4s ease-in-out infinite;
-}
-
-@keyframes eat-nibble {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(3px);
-  }
-}
-
-@keyframes eat-nibble-left {
-  0%,
-  100% {
-    transform: scaleX(-1) translateY(0);
-  }
-  50% {
-    transform: scaleX(-1) translateY(3px);
-  }
 }
 
 .pet.dragging .sprites {
-  animation: none;
   transform: rotate(-8deg);
 }
 
 .pet.dragging.facing-left .sprites {
   transform: scaleX(-1) rotate(-8deg);
-}
-
-.pet.airborne:not(.dragging) .sprites {
-  animation: none;
 }
 
 .yarn {

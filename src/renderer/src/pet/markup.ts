@@ -1,11 +1,6 @@
-import { SPRITE_NAMES, SPRITE_URLS } from './sprites'
+import { DEFAULT_FRAME } from './clips'
 
 export function catMarkup(): string {
-  const frames = SPRITE_NAMES.map(
-    (name) =>
-      `<img class="sprite sprite-${name}" src="${SPRITE_URLS[name]}" alt="" draggable="false" />`
-  ).join('')
-
   return `
     <div id="stage">
       <div id="hud" class="hud" hidden>
@@ -39,7 +34,9 @@ export function catMarkup(): string {
       <div id="pet" class="pet state-idle facing-right" data-state="idle">
         <div class="yarn" aria-hidden="true"></div>
         <div class="ground-shadow" aria-hidden="true"></div>
-        <div class="sprites">${frames}</div>
+        <div class="sprites">
+          <img id="pet-frame" class="sprite" src="${DEFAULT_FRAME}" alt="" draggable="false" />
+        </div>
       </div>
     </div>
   `

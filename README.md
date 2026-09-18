@@ -2,7 +2,7 @@
 
 一只会在桌面上散步、蹭人、吃饭和睡觉的橘色虎斑猫桌面宠物。窗口透明、无边框、默认置顶，交互方式接近常见的 Shimeji / 桌宠小部件。
 
-猫咪立绘为原创卡通动漫（chibi）透明 PNG 精灵图（约 180px），按状态切换 idle / walk / sleep / happy 等帧，不含任何受版权保护的角色。
+猫咪立绘为原创卡通动漫（chibi）透明 PNG **逐帧动画**：每个动作的每一步都有独立图片，而不是一张静图靠 CSS 晃动。不含任何受版权保护的角色。
 
 ## 环境要求
 
@@ -90,11 +90,28 @@ npm run build
 ```
 src/main/        主进程：窗口、托盘、IPC、设置存盘
 src/preload/     预加载桥
-src/renderer/    状态机、动画循环、猫咪立绘与 HUD
-src/renderer/src/assets/pet/  卡通动漫透明 PNG 精灵图
+src/renderer/    状态机、逐帧动画循环、猫咪立绘与 HUD
+src/renderer/src/assets/pet/<动作>/<帧>.png  逐帧透明 PNG
+src/renderer/src/pet/clips.ts               动画剪辑表（帧序与间隔）
 src/shared/      窗口尺寸与设置类型
 resources/       应用/托盘图标（原创绘制）
 ```
+
+## 逐帧动画
+
+精灵按动作分子目录，由 `clips.ts` 组成循环 / 往返 / 播完停住 / 眨眼剪辑。走路素材默认朝右，朝左时水平翻转（`scaleX(-1)`）。
+
+| 动作 | 帧文件 | 播放 |
+| --- | --- | --- |
+| walk | `01.png`–`04.png` | 行走循环，约 120ms/帧 |
+| idle | `eyes-open` / `blink-half` / `blink-closed` | 多数时间睁眼，偶尔快速眨眼 |
+| sleep | `01.png`–`02.png` | 缓慢来回，约 640ms/帧 |
+| happy | `01.png`–`02.png` | 快速来回蹦跳 |
+| sit | `01.png`–`03.png` | 坐姿微动循环 |
+| stretch | `01.png`–`03.png` | 伸懒腰往返 |
+| lick | `01.png`–`03.png` | 舔毛循环 |
+| surprised | `01.png`–`03.png` | 惊吓三帧后停住 |
+| eat | `01.png`–`04.png` | 看鱼 → 咬 → 嚼 → 舔嘴 |
 
 ## 常见问题
 
