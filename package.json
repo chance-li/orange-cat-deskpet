@@ -1,0 +1,64 @@
+{
+  "name": "orange-cat-deskpet",
+  "version": "1.0.0",
+  "description": "橘猫桌面宠物 — 透明置顶的 Windows 桌宠",
+  "main": "./out/main/index.js",
+  "author": "橘猫桌宠",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-vite dev",
+    "dev": "electron-vite dev",
+    "preview": "electron-vite preview",
+    "build": "electron-vite build",
+    "build:win": "electron-vite build && electron-builder --win --x64",
+    "pack": "electron-vite build && electron-builder --dir"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  },
+  "build": {
+    "appId": "com.deskpet.orangecat",
+    "productName": "橘猫桌宠",
+    "directories": {
+      "output": "release",
+      "buildResources": "resources"
+    },
+    "files": [
+      "out/**",
+      "resources/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "win": {
+      "icon": "resources/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "橘猫桌宠",
+      "uninstallDisplayName": "橘猫桌宠"
+    }
+  }
+}
