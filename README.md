@@ -2,7 +2,7 @@
 
 一只会在桌面上散步、蹭人、吃饭和睡觉的橘色虎斑猫桌面宠物。窗口透明、无边框、默认置顶，交互方式接近常见的 Shimeji / 桌宠小部件。
 
-猫咪立绘为原创 SVG/CSS 动画（约 168px），不含任何受版权保护的素材。
+猫咪立绘为原创卡通动漫（chibi）透明 PNG 精灵图（约 180px），按状态切换 idle / walk / sleep / happy 等帧，不含任何受版权保护的角色。
 
 ## 环境要求
 
@@ -91,6 +91,7 @@ npm run build
 src/main/        主进程：窗口、托盘、IPC、设置存盘
 src/preload/     预加载桥
 src/renderer/    状态机、动画循环、猫咪立绘与 HUD
+src/renderer/src/assets/pet/  卡通动漫透明 PNG 精灵图
 src/shared/      窗口尺寸与设置类型
 resources/       应用/托盘图标（原创绘制）
 ```
