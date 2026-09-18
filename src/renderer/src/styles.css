@@ -1,0 +1,721 @@
+:root {
+  --fur: #ee9a3a;
+  --hud-bg: rgba(255, 250, 242, 0.94);
+  --hud-ink: #6b3a1a;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", sans-serif;
+}
+
+#app,
+#stage {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hud {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 8px;
+  padding: 8px 10px 7px;
+  border-radius: 12px;
+  background: var(--hud-bg);
+  box-shadow: 0 6px 16px rgba(80, 40, 10, 0.16);
+  color: var(--hud-ink);
+  z-index: 5;
+  pointer-events: none;
+  animation: hud-in 0.18s ease-out;
+}
+
+.hud[hidden] {
+  display: none;
+}
+
+.hud-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.hud-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 22px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(196, 120, 60, 0.18);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f3b14a, #ef7d4a);
+  transition: width 0.25s ease;
+}
+
+.bar.hunger i {
+  background: linear-gradient(90deg, #8bd17c, #3fae6a);
+}
+
+.bar.low i {
+  background: linear-gradient(90deg, #f3c14a, #e24b3a);
+}
+
+.hud-row em {
+  font-style: normal;
+  font-size: 10px;
+  text-align: right;
+}
+
+.hud-hint {
+  margin-top: 5px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+@keyframes hud-in {
+  from {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.zzz {
+  position: absolute;
+  left: 118px;
+  top: 28px;
+  font-size: 18px;
+  color: #7b93b8;
+  font-weight: 800;
+  opacity: 0;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.pet.state-sleep ~ .fx .zzz,
+.pet.state-sleep + .fx .zzz {
+  opacity: 1;
+}
+
+#stage:has(.pet.state-sleep) .zzz {
+  opacity: 1;
+  animation: zzz 1.8s ease-in-out infinite;
+}
+
+#stage:has(.pet.state-happy) .hearts,
+#stage:has(.pet.state-lick) .hearts {
+  opacity: 1;
+}
+
+#stage:has(.pet.hungry) .thought {
+  opacity: 1;
+}
+
+.hearts {
+  position: absolute;
+  left: 78px;
+  top: 28px;
+  opacity: 0;
+  color: #ff6b8a;
+  font-size: 12px;
+}
+
+.hearts span {
+  position: absolute;
+  animation: heart 1.2s ease-out infinite;
+}
+
+.hearts span:nth-child(2) {
+  left: 14px;
+  animation-delay: 0.2s;
+}
+
+.hearts span:nth-child(3) {
+  left: 7px;
+  animation-delay: 0.4s;
+}
+
+.thought {
+  position: absolute;
+  left: 22px;
+  top: 36px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+@keyframes zzz {
+  0% {
+    transform: translate(0, 0) scale(0.8);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(10px, -18px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes heart {
+  0% {
+    transform: translateY(8px) scale(0.6);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-18px) scale(1.15);
+    opacity: 0;
+  }
+}
+
+.pet {
+  position: absolute;
+  left: 16px;
+  bottom: 4px;
+  width: 168px;
+  height: 168px;
+  cursor: grab;
+  transform-origin: 50% 100%;
+  touch-action: none;
+}
+
+.pet.dragging {
+  cursor: grabbing;
+}
+
+.pet.facing-left .cat-svg {
+  transform: scaleX(-1);
+}
+
+.cat-svg {
+  display: block;
+  overflow: visible;
+  transform-origin: 84px 150px;
+}
+
+.tail,
+.head,
+.body,
+.leg,
+.ear,
+.eye,
+.paw-lick {
+  transform-box: fill-box;
+}
+
+.tail {
+  transform-origin: 0% 80%;
+  animation: tail-idle 2.4s ease-in-out infinite;
+}
+
+.head {
+  transform-origin: 50% 80%;
+  animation: breathe-head 3.2s ease-in-out infinite;
+}
+
+.body {
+  transform-origin: 50% 50%;
+  animation: breathe-body 3.2s ease-in-out infinite;
+}
+
+.ear-left {
+  transform-origin: 80% 100%;
+}
+
+.ear-right {
+  transform-origin: 20% 100%;
+}
+
+.leg {
+  transform-origin: 50% 0%;
+}
+
+.eye-left,
+.eye-right {
+  transform-origin: 50% 50%;
+  animation: blink 4.6s infinite;
+}
+
+.paw-lick {
+  opacity: 0;
+  transform-origin: 80% 20%;
+}
+
+.yarn,
+.fish {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.yarn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  left: 10px;
+  bottom: 28px;
+  background:
+    radial-gradient(circle at 35% 30%, #fff 0 18%, transparent 19%),
+    repeating-conic-gradient(#e85d6a 0 12deg, #f8a0aa 0 24deg);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.fish {
+  left: 22px;
+  bottom: 58px;
+}
+
+/* idle */
+@keyframes tail-idle {
+  0%,
+  100% {
+    transform: rotate(8deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes breathe-head {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.5px);
+  }
+}
+
+@keyframes breathe-body {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+
+@keyframes blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+  92% {
+    transform: scaleY(0.08);
+  }
+}
+
+/* walk */
+.pet.state-walk .head {
+  animation: walk-head 0.36s ease-in-out infinite;
+}
+
+.pet.state-walk .body {
+  animation: walk-body 0.36s ease-in-out infinite;
+}
+
+.pet.state-walk .leg-fl,
+.pet.state-walk .leg-br {
+  animation: leg-a 0.36s ease-in-out infinite;
+}
+
+.pet.state-walk .leg-fr,
+.pet.state-walk .leg-bl {
+  animation: leg-b 0.36s ease-in-out infinite;
+}
+
+.pet.state-walk .tail {
+  animation: tail-walk 0.36s ease-in-out infinite;
+}
+
+.pet.playing.state-walk .yarn {
+  opacity: 1;
+  animation: yarn-roll 0.5s linear infinite;
+}
+
+@keyframes walk-head {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(3px) rotate(2deg);
+  }
+}
+
+@keyframes walk-body {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes leg-a {
+  0%,
+  100% {
+    transform: rotate(18deg) translateY(-2px);
+  }
+  50% {
+    transform: rotate(-16deg) translateY(1px);
+  }
+}
+
+@keyframes leg-b {
+  0%,
+  100% {
+    transform: rotate(-16deg) translateY(1px);
+  }
+  50% {
+    transform: rotate(18deg) translateY(-2px);
+  }
+}
+
+@keyframes tail-walk {
+  0%,
+  100% {
+    transform: rotate(16deg);
+  }
+  50% {
+    transform: rotate(-22deg);
+  }
+}
+
+@keyframes yarn-roll {
+  0% {
+    transform: translateX(0) rotate(0);
+  }
+  100% {
+    transform: translateX(118px) rotate(360deg);
+  }
+}
+
+/* sit / loaf */
+.pet.state-sit .body {
+  animation: none;
+  transform: translateY(8px) scale(1.12, 0.86);
+}
+
+.pet.state-sit .head {
+  animation: sit-head 3s ease-in-out infinite;
+  transform: translateY(10px);
+}
+
+.pet.state-sit .leg-fl,
+.pet.state-sit .leg-fr,
+.pet.state-sit .leg-bl,
+.pet.state-sit .leg-br {
+  transform: translateY(-10px) scaleY(0.35);
+}
+
+.pet.state-sit .tail {
+  animation: tail-sit 3.4s ease-in-out infinite;
+}
+
+@keyframes sit-head {
+  0%,
+  100% {
+    transform: translateY(10px);
+  }
+  50% {
+    transform: translateY(12px);
+  }
+}
+
+@keyframes tail-sit {
+  0%,
+  100% {
+    transform: rotate(-28deg);
+  }
+  50% {
+    transform: rotate(-8deg);
+  }
+}
+
+/* sleep */
+.pet.state-sleep .cat-svg {
+  transform: rotate(-12deg) translate(4px, 8px);
+}
+
+.pet.state-sleep.facing-left .cat-svg {
+  transform: scaleX(-1) rotate(-12deg) translate(4px, 8px);
+}
+
+.pet.state-sleep .body {
+  animation: none;
+  transform: translateY(10px) scale(1.16, 0.8);
+}
+
+.pet.state-sleep .head {
+  animation: sleep-head 2.8s ease-in-out infinite;
+}
+
+.pet.state-sleep .leg-fl,
+.pet.state-sleep .leg-fr,
+.pet.state-sleep .leg-bl,
+.pet.state-sleep .leg-br {
+  transform: translateY(-12px) scaleY(0.3);
+}
+
+.pet.state-sleep .eyes-open,
+.pet.state-sleep .eyes-happy,
+.pet.state-sleep .eyes-closed {
+  display: none;
+}
+
+.pet.state-sleep .eyes-sleep {
+  display: inline;
+}
+
+.pet.state-sleep .tail {
+  animation: none;
+  transform: rotate(-40deg);
+}
+
+@keyframes sleep-head {
+  0%,
+  100% {
+    transform: translateY(12px) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(14px) rotate(-6deg);
+  }
+}
+
+/* stretch */
+.pet.state-stretch .body {
+  animation: none;
+  transform: translate(-8px, 6px) scale(1.35, 0.72);
+}
+
+.pet.state-stretch .head {
+  animation: none;
+  transform: translate(-18px, 4px) rotate(-8deg);
+}
+
+.pet.state-stretch .leg-fl,
+.pet.state-stretch .leg-fr {
+  transform: translate(-16px, 4px) rotate(-70deg);
+}
+
+.pet.state-stretch .leg-bl,
+.pet.state-stretch .leg-br {
+  transform: translate(6px, -4px) scaleY(0.7);
+}
+
+.pet.state-stretch .tail {
+  animation: none;
+  transform: rotate(28deg);
+}
+
+/* lick */
+.pet.state-lick .paw-lick {
+  opacity: 1;
+  animation: lick-paw 0.35s ease-in-out infinite alternate;
+}
+
+.pet.state-lick .head {
+  animation: lick-head 0.7s ease-in-out infinite;
+}
+
+.pet.state-lick .eyes-open {
+  display: none;
+}
+
+.pet.state-lick .eyes-closed {
+  display: inline;
+}
+
+@keyframes lick-paw {
+  from {
+    transform: rotate(-10deg) translate(0, 0);
+  }
+  to {
+    transform: rotate(12deg) translate(2px, -3px);
+  }
+}
+
+@keyframes lick-head {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+/* happy */
+.pet.state-happy {
+  animation: hop 0.42s ease-in-out infinite;
+}
+
+.pet.state-happy .eyes-open,
+.pet.state-happy .eyes-sleep,
+.pet.state-happy .eyes-closed {
+  display: none;
+}
+
+.pet.state-happy .eyes-happy {
+  display: inline;
+}
+
+.pet.state-happy .blush ellipse {
+  opacity: 1;
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* surprised */
+.pet.state-surprised .eye-left,
+.pet.state-surprised .eye-right {
+  animation: none;
+  transform: scale(1.18);
+}
+
+.pet.state-surprised .pupil {
+  transform: scale(0.72);
+  transform-origin: center;
+}
+
+.pet.state-surprised .mouth path {
+  opacity: 0;
+}
+
+.pet.state-surprised .mouth-o {
+  opacity: 1;
+}
+
+.pet.state-surprised .ear-left {
+  transform: rotate(-12deg);
+}
+
+.pet.state-surprised .ear-right {
+  transform: rotate(12deg);
+}
+
+.pet.state-surprised .head {
+  animation: surprise-head 0.45s ease-in-out;
+}
+
+@keyframes surprise-head {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.06, 0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* eat */
+.pet.state-eat .fish {
+  opacity: 1;
+  animation: fish-bob 0.5s ease-in-out infinite;
+}
+
+.pet.state-eat .head {
+  animation: eat-head 0.4s ease-in-out infinite;
+}
+
+.pet.state-eat .mouth-o {
+  opacity: 0.9;
+}
+
+.pet.state-eat .mouth path {
+  opacity: 0;
+}
+
+@keyframes eat-head {
+  0%,
+  100% {
+    transform: translateY(0) rotate(8deg);
+  }
+  50% {
+    transform: translateY(6px) rotate(12deg);
+  }
+}
+
+@keyframes fish-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/* drag / airborne */
+.pet.dragging .leg-fl,
+.pet.dragging .leg-fr,
+.pet.dragging .leg-bl,
+.pet.dragging .leg-br {
+  transform: rotate(28deg) translateY(4px);
+}
+
+.pet.dragging .tail {
+  animation: tail-walk 0.25s ease-in-out infinite;
+}
+
+.pet.airborne:not(.dragging) .leg-fl,
+.pet.airborne:not(.dragging) .leg-fr {
+  transform: rotate(-20deg);
+}
+
+.pet.low-mood .blush ellipse {
+  opacity: 0.15;
+}
+
+.pet.low-mood .eye-left,
+.pet.low-mood .eye-right {
+  transform: scaleY(0.72);
+}
