@@ -107,10 +107,10 @@ resources/       应用图标 icon.png、托盘图标 tray.png
 | idle | `eyes-open` / `blink-half` / `blink-closed` | 多数时间睁眼，偶尔快速眨眼 |
 | sleep | `01.png`–`04.png` | 缓慢来回呼吸 |
 | happy | `01.png`–`04.png` | 快速来回蹦跳 |
-| sit | `01.png`–`05.png` | 张望 + 眨眼 |
-| stretch | `01.png`–`04.png` | 坐下 → 伸懒腰 → 打哈欠 |
-| lick | `01.png`–`04.png` | 抬爪舔毛循环 |
-| surprised | `01.png`–`04.png` | 惊吓后停住 |
+| sit | `01.png`–`03.png` | 坐姿微动 |
+| stretch | `01.png`–`03.png` | 伸懒腰往返 |
+| lick | `01.png`–`03.png` | 舔毛循环 |
+| surprised | `01.png`–`03.png` | 惊吓后停住 |
 | eat | `01.png`–`04.png` | 看鱼 → 咬 → 嚼 |
 
 ## 常见问题

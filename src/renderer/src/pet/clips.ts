@@ -24,23 +24,18 @@ import happy04 from '../assets/pet/happy/04.png'
 import sit01 from '../assets/pet/sit/01.png'
 import sit02 from '../assets/pet/sit/02.png'
 import sit03 from '../assets/pet/sit/03.png'
-import sit04 from '../assets/pet/sit/04.png'
-import sit05 from '../assets/pet/sit/05.png'
 
 import stretch01 from '../assets/pet/stretch/01.png'
 import stretch02 from '../assets/pet/stretch/02.png'
 import stretch03 from '../assets/pet/stretch/03.png'
-import stretch04 from '../assets/pet/stretch/04.png'
 
 import lick01 from '../assets/pet/lick/01.png'
 import lick02 from '../assets/pet/lick/02.png'
 import lick03 from '../assets/pet/lick/03.png'
-import lick04 from '../assets/pet/lick/04.png'
 
 import surprised01 from '../assets/pet/surprised/01.png'
 import surprised02 from '../assets/pet/surprised/02.png'
 import surprised03 from '../assets/pet/surprised/03.png'
-import surprised04 from '../assets/pet/surprised/04.png'
 
 import eat01 from '../assets/pet/eat/01.png'
 import eat02 from '../assets/pet/eat/02.png'
@@ -67,9 +62,9 @@ export const CLIPS: Record<AnimState, ClipDef> = {
     mode: 'idle-blink'
   },
   sit: {
-    frames: [sit01, sit04, sit01, sit05, sit01, sit02, sit03, sit02],
+    frames: [sit01, sit02, sit03],
     frameMs: 420,
-    mode: 'loop'
+    mode: 'pingpong'
   },
   sleep: {
     frames: [sleep01, sleep02, sleep03, sleep04],
@@ -82,22 +77,22 @@ export const CLIPS: Record<AnimState, ClipDef> = {
     mode: 'pingpong'
   },
   stretch: {
-    frames: [stretch03, stretch04, stretch01, stretch02],
+    frames: [stretch01, stretch02, stretch03],
     frameMs: 150,
     mode: 'pingpong'
   },
   lick: {
-    frames: [lick03, lick04, lick01, lick02, lick01, lick04],
+    frames: [lick01, lick02, lick03],
     frameMs: 140,
     mode: 'loop'
   },
   surprised: {
-    frames: [surprised04, surprised01, surprised02],
+    frames: [surprised01, surprised02, surprised03],
     frameMs: 85,
     mode: 'once'
   },
   eat: {
-    frames: [eat01, eat02, eat03, eat02, eat04],
+    frames: [eat01, eat02, eat03, eat04],
     frameMs: 170,
     mode: 'once'
   }
