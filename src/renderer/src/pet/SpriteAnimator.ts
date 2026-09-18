@@ -5,8 +5,6 @@ function rand(min: number, max: number): number {
   return min + Math.random() * (max - min)
 }
 
-const CROSSFADE_MS = 55
-
 export class SpriteAnimator {
   private readonly bufs: [HTMLImageElement, HTMLImageElement]
   private front = 0
@@ -139,11 +137,7 @@ export class SpriteAnimator {
       }
       if (this.pending) continue
       incoming.classList.add('is-visible')
-      window.setTimeout(() => {
-        if (this.bufs[this.front] !== outgoing) {
-          outgoing.classList.remove('is-visible')
-        }
-      }, CROSSFADE_MS)
+      outgoing.classList.remove('is-visible')
       this.front = back
       this.lastUrl = next
     }

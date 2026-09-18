@@ -217,7 +217,6 @@ body {
   pointer-events: none;
   -webkit-user-drag: none;
   opacity: 0;
-  transition: opacity 55ms linear;
 }
 
 .sprite.is-visible {
