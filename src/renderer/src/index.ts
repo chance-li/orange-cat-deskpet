@@ -9,4 +9,8 @@ if (!root) {
 
 root.innerHTML = catMarkup()
 const engine = new PetEngine(root)
-void engine.start()
+if (window.deskpet) {
+  void engine.start()
+} else {
+  console.warn('桌宠 API 未注入，仅预览立绘')
+}

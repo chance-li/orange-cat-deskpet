@@ -11,11 +11,11 @@ const DRAG_THRESHOLD = 5
 const CLICK_MS = 280
 
 const ONE_SHOT: Partial<Record<AnimState, number>> = {
-  stretch: 1700,
-  lick: 1300,
-  happy: 1500,
-  surprised: 850,
-  eat: 2100
+  stretch: 1800,
+  lick: 1400,
+  happy: 1600,
+  surprised: 900,
+  eat: 3600
 }
 
 function clamp(n: number, min: number, max: number): number {
@@ -59,12 +59,13 @@ export class PetEngine {
   private playing = false
   private dragMoved = false
   private pointerStart: Point = { x: 0, y: 0 }
-  private dragOffset: Point = { x: 0, y: 0 }
   private lastClickAt = 0
   private cursor: Point = { x: 0, y: 0 }
   private workArea: Rect = { x: 0, y: 0, width: 1920, height: 1080 }
   private cursorInFlight = false
   private posInFlight = false
+  private lastSentX = Number.NaN
+  private lastSentY = Number.NaN
   private lastTs = 0
   private lastAreaSync = 0
   private running = false
@@ -106,7 +107,8 @@ export class PetEngine {
   private bind(): void {
     this.pet.addEventListener('pointerdown', (event) => this.onPointerDown(event))
     window.addEventListener('pointermove', (event) => this.onPointerMove(event))
-    window.addEventListener('pointerup', (event) => this.onPointerUp(event))
+    window.addEventListener('pointerup', (event) => this.onPointerUp(event), true)
+    window.addEventListener('pointercancel', (event) => this.onPointerUp(event), true)
     this.pet.addEventListener('dblclick', (event) => {
       event.preventDefault()
       this.reactDoubleClick()
@@ -141,7 +143,9 @@ export class PetEngine {
       })
     }
     if (this.dragging) {
-      this.followDrag()
+      this.render()
+      requestAnimationFrame(this.tick)
+      return
     } else if (this.followMouse) {
       this.followCursor(dt)
     } else {
@@ -290,15 +294,6 @@ export class PetEngine {
     this.syncWindow()
   }
 
-  private followDrag(): void {
-    const nextX = this.cursor.x - this.dragOffset.x
-    const nextY = this.cursor.y - this.dragOffset.y
-    this.x = nextX
-    this.y = nextY
-    this.airborne = this.y < this.groundY() - 6
-    this.syncWindow()
-  }
-
   private followCursor(dt: number): void {
     const targetX = this.cursor.x - WINDOW_WIDTH * 0.45
     const targetY = this.cursor.y - WINDOW_HEIGHT * 0.25
@@ -319,11 +314,18 @@ export class PetEngine {
   }
 
   private syncWindow(): void {
+    const x = Math.round(this.x)
+    const y = Math.round(this.y)
+    if (x === this.lastSentX && y === this.lastSentY) return
     if (this.posInFlight) return
     this.posInFlight = true
-    void window.deskpet.setPosition(this.x, this.y).then((point) => {
+    this.lastSentX = x
+    this.lastSentY = y
+    void window.deskpet.setPosition(x, y).then((point) => {
       this.x = point.x
       this.y = point.y
+      this.lastSentX = Math.round(point.x)
+      this.lastSentY = Math.round(point.y)
       this.posInFlight = false
     })
   }
@@ -387,17 +389,15 @@ export class PetEngine {
 
   private onPointerDown(event: PointerEvent): void {
     if (event.button !== 0) return
+    event.preventDefault()
     this.pet.setPointerCapture(event.pointerId)
     this.dragging = true
     this.dragMoved = false
     this.pointerStart = { x: event.screenX, y: event.screenY }
-    this.dragOffset = {
-      x: event.screenX - this.x,
-      y: event.screenY - this.y
-    }
     this.cursor = { x: event.screenX, y: event.screenY }
     this.pet.classList.add('dragging')
     this.setState('surprised')
+    void window.deskpet.beginDrag()
   }
 
   private onPointerMove(event: PointerEvent): void {
@@ -418,16 +418,24 @@ export class PetEngine {
     } catch {
       /* already released */
     }
-    if (!this.dragMoved) {
-      this.reactClick()
-    } else {
-      this.vy = 0
-      this.airborne = this.y < this.groundY() - 6
-      if (this.airborne) this.setState('surprised')
-      else this.setState('sit')
-      void window.deskpet.saveSettings({ x: Math.round(this.x), y: Math.round(this.y) })
-    }
-    this.syncHudVisibility()
+    void window.deskpet.endDrag().then((point) => {
+      this.x = point.x
+      this.y = point.y
+      this.lastSentX = Math.round(point.x)
+      this.lastSentY = Math.round(point.y)
+      const moved =
+        this.dragMoved ||
+        Math.hypot(event.screenX - this.pointerStart.x, event.screenY - this.pointerStart.y) > DRAG_THRESHOLD
+      if (!moved) {
+        this.reactClick()
+      } else {
+        this.vy = 0
+        this.airborne = this.y < this.groundY() - 6
+        if (this.airborne) this.setState('surprised')
+        else this.setState('sit')
+      }
+      this.syncHudVisibility()
+    })
   }
 
   private reactClick(): void {
@@ -493,6 +501,7 @@ export class PetEngine {
   }
 
   private async onMenu(action: MenuAction): Promise<void> {
+    console.log('[renderer] 菜单动作', action)
     switch (action) {
       case 'pet':
         this.petAction()

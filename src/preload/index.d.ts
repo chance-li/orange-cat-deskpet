@@ -10,6 +10,8 @@ export interface DeskpetAPI {
   hideToTray(): Promise<void>
   quit(): Promise<void>
   showContextMenu(): Promise<void>
+  beginDrag(): Promise<void>
+  endDrag(): Promise<Point>
   loadSettings(): Promise<DeskpetSettings>
   saveSettings(partial: Partial<DeskpetSettings>): Promise<DeskpetSettings>
   onMenuAction(callback: (action: MenuAction) => void): () => void

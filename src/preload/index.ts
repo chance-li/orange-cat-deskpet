@@ -29,6 +29,12 @@ const api = {
   showContextMenu(): Promise<void> {
     return ipcRenderer.invoke('menu:show')
   },
+  beginDrag(): Promise<void> {
+    return ipcRenderer.invoke('drag:begin')
+  },
+  endDrag(): Promise<Point> {
+    return ipcRenderer.invoke('drag:end')
+  },
   loadSettings(): Promise<DeskpetSettings> {
     return ipcRenderer.invoke('settings:load')
   },

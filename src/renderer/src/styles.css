@@ -115,11 +115,12 @@ body {
 .zzz {
   position: absolute;
   left: 118px;
-  top: 42px;
-  font-size: 14px;
-  color: #8aa4c8;
-  font-weight: 700;
+  top: 28px;
+  font-size: 18px;
+  color: #7b93b8;
+  font-weight: 800;
   opacity: 0;
+  text-shadow: 0 1px 0 #fff;
 }
 
 .pet.state-sleep ~ .fx .zzz,
@@ -209,6 +210,7 @@ body {
   height: 168px;
   cursor: grab;
   transform-origin: 50% 100%;
+  touch-action: none;
 }
 
 .pet.dragging {
@@ -222,7 +224,6 @@ body {
 .cat-svg {
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 10px 8px rgba(60, 30, 10, 0.18));
   transform-origin: 84px 150px;
 }
 
@@ -282,11 +283,11 @@ body {
 }
 
 .yarn {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  left: 8px;
-  bottom: 18px;
+  left: 10px;
+  bottom: 28px;
   background:
     radial-gradient(circle at 35% 30%, #fff 0 18%, transparent 19%),
     repeating-conic-gradient(#e85d6a 0 12deg, #f8a0aa 0 24deg);
@@ -294,8 +295,8 @@ body {
 }
 
 .fish {
-  left: 18px;
-  bottom: 20px;
+  left: 22px;
+  bottom: 58px;
 }
 
 /* idle */

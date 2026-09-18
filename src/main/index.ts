@@ -22,6 +22,15 @@ import { createTrayIcon } from './icon'
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let isQuitting = false
+let dragTimer: ReturnType<typeof setInterval> | null = null
+let dragOffset = { x: 0, y: 0 }
+
+function stopDragLoop(): void {
+  if (dragTimer) {
+    clearInterval(dragTimer)
+    dragTimer = null
+  }
+}
 
 function resolveIcon(): NativeImage {
   const packaged = app.isPackaged
@@ -35,7 +44,13 @@ function resolveIcon(): NativeImage {
 }
 
 function workAreaAt(x: number, y: number) {
-  return screen.getDisplayNearestPoint({ x, y }).workArea
+  const display = screen.getDisplayNearestPoint({ x, y })
+  const area = { ...display.workArea }
+  const fullHeight = display.bounds.height - 8
+  if (area.y === display.bounds.y && area.height >= fullHeight) {
+    area.height = Math.max(WINDOW_HEIGHT + 40, area.height - 72)
+  }
+  return area
 }
 
 function clampToWorkArea(x: number, y: number): { x: number; y: number } {
@@ -50,7 +65,7 @@ function defaultSpawn(): { x: number; y: number } {
   const area = screen.getPrimaryDisplay().workArea
   return {
     x: Math.round(area.x + area.width - WINDOW_WIDTH - 48),
-    y: Math.round(area.y + area.height - WINDOW_HEIGHT - 8)
+    y: Math.round(area.y + area.height - WINDOW_HEIGHT - 56)
   }
 }
 
@@ -64,6 +79,10 @@ function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
+    minWidth: WINDOW_WIDTH,
+    maxWidth: WINDOW_WIDTH,
+    minHeight: WINDOW_HEIGHT,
+    maxHeight: WINDOW_HEIGHT,
     x: spawn.x,
     y: spawn.y,
     show: false,
@@ -84,7 +103,8 @@ function createWindow(): BrowserWindow {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false,
+      backgroundThrottling: false,
       devTools: !app.isPackaged
     }
   })
@@ -92,7 +112,9 @@ function createWindow(): BrowserWindow {
   win.setMenuBarVisibility(false)
   if (settings.alwaysOnTop) {
     win.setAlwaysOnTop(true, 'screen-saver')
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+    if (process.platform === 'darwin') {
+      win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+    }
   }
 
   win.on('close', (event) => {
@@ -115,17 +137,54 @@ function createWindow(): BrowserWindow {
     })
   }
 
+  win.once('ready-to-show', () => {
+    win.setBounds({ x: spawn.x, y: spawn.y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT })
+    win.show()
+  })
+  win.webContents.on('did-finish-load', async () => {
+    console.log('[橘猫] 页面已加载', win.webContents.getURL())
+    win.setBounds({ x: spawn.x, y: spawn.y, width: WINDOW_WIDTH, height: WINDOW_HEIGHT })
+    if (!win.isVisible()) win.show()
+    try {
+      const info = await win.webContents.executeJavaScript(
+        `({state: document.querySelector('#pet')?.dataset.state, len: document.getElementById('app')?.innerHTML.length, api: typeof window.deskpet})`
+      )
+      console.log('[橘猫] DOM', info)
+    } catch (error) {
+      console.error('[橘猫] 无法读取 DOM', error)
+    }
+  })
+  win.webContents.on('did-fail-load', (_event, code, desc, url) => {
+    console.error('[橘猫] 页面加载失败', code, desc, url)
+  })
+  win.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[橘猫] 渲染进程退出', details)
+  })
+  win.webContents.on('console-message', (_event, _level, message) => {
+    console.log('[renderer]', message)
+  })
+
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  win.once('ready-to-show', () => {
-    win.show()
-  })
-
   return win
+}
+
+function placeWindow(win: BrowserWindow, x: number, y: number): { x: number; y: number } {
+  const next = clampToWorkArea(Number(x) || 0, Number(y) || 0)
+  win.setBounds(
+    {
+      x: next.x,
+      y: next.y,
+      width: WINDOW_WIDTH,
+      height: WINDOW_HEIGHT
+    },
+    false
+  )
+  return next
 }
 
 function persistWindowPosition(): void {
@@ -263,21 +322,43 @@ function createTrayIconMenu(): void {
 }
 
 function registerIpc(): void {
+  ipcMain.handle('drag:begin', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return
+    const cursor = screen.getCursorScreenPoint()
+    const [x, y] = win.getPosition()
+    dragOffset = { x: cursor.x - x, y: cursor.y - y }
+    stopDragLoop()
+    dragTimer = setInterval(() => {
+      if (!win || win.isDestroyed()) {
+        stopDragLoop()
+        return
+      }
+      const point = screen.getCursorScreenPoint()
+      placeWindow(win, point.x - dragOffset.x, point.y - dragOffset.y)
+    }, 16)
+  })
+
+  ipcMain.handle('drag:end', (event) => {
+    stopDragLoop()
+    persistWindowPosition()
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return { x: 0, y: 0 }
+    const [x, y] = win.getPosition()
+    return { x, y }
+  })
+
   ipcMain.handle('window:move-by', (event, dx: number, dy: number) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { x: 0, y: 0 }
     const [x, y] = win.getPosition()
-    const next = clampToWorkArea(x + dx, y + dy)
-    win.setPosition(next.x, next.y, false)
-    return next
+    return placeWindow(win, x + (Number(dx) || 0), y + (Number(dy) || 0))
   })
 
   ipcMain.handle('window:set-position', (event, x: number, y: number) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { x: 0, y: 0 }
-    const next = clampToWorkArea(x, y)
-    win.setPosition(next.x, next.y, false)
-    return next
+    return placeWindow(win, x, y)
   })
 
   ipcMain.handle('window:get-position', (event) => {
@@ -299,7 +380,9 @@ function registerIpc(): void {
   ipcMain.handle('window:set-always-on-top', (event, flag: boolean) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     win?.setAlwaysOnTop(flag, flag ? 'screen-saver' : 'normal')
-    win?.setVisibleOnAllWorkspaces(flag, { visibleOnFullScreen: true })
+    if (process.platform === 'darwin') {
+      win?.setVisibleOnAllWorkspaces(flag, { visibleOnFullScreen: true })
+    }
     const next = saveSettings({ alwaysOnTop: flag })
     refreshTray()
     event.sender.send('settings:sync', next)
@@ -354,6 +437,7 @@ function setupApp(): void {
 
   app.on('before-quit', () => {
     isQuitting = true
+    stopDragLoop()
     persistWindowPosition()
   })
 
@@ -368,6 +452,10 @@ if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-transparent-visuals')
   app.commandLine.appendSwitch('no-sandbox')
   app.commandLine.appendSwitch('disable-gpu-sandbox')
+  app.commandLine.appendSwitch('disable-dev-shm-usage')
+  app.commandLine.appendSwitch('ignore-gpu-blocklist')
+  app.commandLine.appendSwitch('use-gl', 'angle')
+  app.commandLine.appendSwitch('use-angle', 'swiftshader')
 }
 
 setupApp()
