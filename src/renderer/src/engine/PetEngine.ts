@@ -1,5 +1,6 @@
 import type { AnimState, DeskpetSettings, MenuAction, Point, Rect } from '../../../shared/constants'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../../shared/constants'
+import { SpriteAnimator } from '../pet/SpriteAnimator'
 import { PetAudio } from './audio'
 
 const HUNGER_PER_SEC = 100 / (18 * 60)
@@ -37,6 +38,7 @@ export class PetEngine {
   private readonly hungerBar: HTMLElement
   private readonly moodVal: HTMLElement
   private readonly hungerVal: HTMLElement
+  private readonly animator: SpriteAnimator
   private readonly audio = new PetAudio()
 
   private x = 0
@@ -77,9 +79,12 @@ export class PetEngine {
     this.hungerBar = root.querySelector('#hunger-bar') as HTMLElement
     this.moodVal = root.querySelector('#mood-val') as HTMLElement
     this.hungerVal = root.querySelector('#hunger-val') as HTMLElement
+    const sprites = root.querySelector('.sprites') as HTMLElement
+    this.animator = new SpriteAnimator(sprites)
   }
 
   async start(): Promise<void> {
+    await this.animator.ready()
     const settings = await window.deskpet.loadSettings()
     this.applySettings(settings)
     const pos = await window.deskpet.getPosition()
@@ -128,6 +133,34 @@ export class PetEngine {
     window.deskpet.onMenuAction((action) => {
       void this.onMenu(action)
     })
+    if (import.meta.env.DEV) {
+      window.addEventListener('keydown', (event) => this.onDebugKey(event))
+    }
+  }
+
+  private onDebugKey(event: KeyboardEvent): void {
+    const map: Record<string, AnimState> = {
+      Digit1: 'idle',
+      Digit2: 'walk',
+      Digit3: 'sit',
+      Digit4: 'sleep',
+      Digit5: 'happy',
+      Digit6: 'stretch',
+      Digit7: 'lick',
+      Digit8: 'surprised',
+      Digit9: 'eat'
+    }
+    const next = map[event.code]
+    if (!next) return
+    event.preventDefault()
+    if (next === 'walk') {
+      this.startWalk(performance.now(), 8000)
+    } else {
+      this.playing = false
+      this.vx = 0
+      this.setState(next)
+    }
+    this.nextThink = performance.now() + 9000
   }
 
   private tick = (ts: number): void => {
@@ -135,6 +168,7 @@ export class PetEngine {
     const dt = Math.min(0.05, (ts - this.lastTs) / 1000)
     this.lastTs = ts
     this.updateStats(dt)
+    this.animator.tick(ts)
     this.pollCursor()
     if (ts - this.lastAreaSync > 800) {
       this.lastAreaSync = ts
@@ -339,10 +373,12 @@ export class PetEngine {
   }
 
   private setState(state: AnimState): void {
+    const changed = this.state !== state
     this.state = state
     const duration = ONE_SHOT[state]
     this.stateUntil = duration ? performance.now() + duration : 0
     if (state !== 'walk' && state !== 'happy') this.playing = false
+    if (changed || duration) this.animator.play(state)
   }
 
   private render(): void {
